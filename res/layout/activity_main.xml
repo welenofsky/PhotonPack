@@ -1,5 +1,6 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/FrameLayout1"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     tools:context=".MainActivity" >
@@ -8,12 +9,15 @@
         android:id="@+id/videoView1"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true"
         android:layout_gravity="center" >
-        
     </VideoView>
+    <ImageView
+        android:contentDescription="@string/packoff"
+        android:id="@+id/PackOffOverlay"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:src="@raw/pack_off" >
+    </ImageView>
 
-</RelativeLayout>
+
+</FrameLayout>
