@@ -8,6 +8,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.media.SoundPool;
+import android.media.SoundPool.OnLoadCompleteListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
@@ -16,19 +17,18 @@ import android.content.res.AssetManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.widget.ImageView;
 import android.widget.VideoView;
 
-public class MainActivity extends Activity implements OnPreparedListener, OnTouchListener{
+public class MainActivity extends Activity implements OnPreparedListener{
 	VideoView vv;
 	ImageView ii;
 	Uri uri;
 	SoundPool soundPool;
-	int play_off = 0;
-	int shutdown_sound;
 	int shooting_sound;
-	int first_sound;
+	AssetFileDescriptor packshooting_descriptor;
+	boolean loaded = false;
+	int streamid;
 	
 
 	
@@ -36,16 +36,21 @@ public class MainActivity extends Activity implements OnPreparedListener, OnTouc
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		// Load video file on create
 		uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.pack_on);
 		vv = (VideoView) findViewById(R.id.videoView1);
 		ii = (ImageView) findViewById(R.id.PackOffOverlay);
-		// try/catch this shit
 		vv.setVideoURI(uri);
 		ii.setVisibility(View.VISIBLE);
 		vv.seekTo(001);
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		soundPool = new SoundPool(20, AudioManager.STREAM_MUSIC, 0);
+        soundPool.setOnLoadCompleteListener(new OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId,
+                    int status) {
+                loaded = true;
+            }
+        });
 	    vv.setOnPreparedListener (new OnPreparedListener() {                    
 	        @Override
 	        public void onPrepared(MediaPlayer mp) {
@@ -55,35 +60,35 @@ public class MainActivity extends Activity implements OnPreparedListener, OnTouc
 	    
 	    try {
 	    	AssetManager assetManager = getAssets();
-	    	AssetFileDescriptor packshooting_descriptor = assetManager.openFd("game_stream_sound_enh.mp3");
+	    	packshooting_descriptor = assetManager.openFd("spackshootmono.ogg");
 	    	shooting_sound = soundPool.load(packshooting_descriptor, 1);
 	    } catch (IOException e) {
-	    	Log.d("MEDIA ERROR", "Couldn't Open MP3's");
-	    }
-	    soundPool.play(first_sound, 1, 1, 1, 0, 1);
-	    	
+	    	Log.d("MEDIA ERROR", "Couldn't Open ogg");
+	    }    	
 	}
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event)
 	{
 		int maskedAction = event.getActionMasked();
-		soundPool.stop(first_sound);
 		switch (maskedAction) {
 		case MotionEvent.ACTION_DOWN:
-     		soundPool.play(shooting_sound, 1, 1, 1, 0, 1);
 			vv.setVisibility(View.VISIBLE);
 			ii.setVisibility(View.GONE);
-			play_off = 1;
 			if(!vv.isPlaying()) {
 				vv.start();
 			}
+            if (loaded) {
+                streamid = soundPool.play(shooting_sound, 1, 1, 1, -1, 1);
+                Log.e("Test", "Played sound");
+                loaded = false;
+            }
 			break;
 		case MotionEvent.ACTION_UP:
 			ii.setVisibility(View.VISIBLE);
+			soundPool.stop(streamid);
 		    vv.pause();
 		    vv.seekTo(0);
-		    soundPool.stop(shooting_sound);
 			break;
 		}
 		return true;
@@ -93,21 +98,15 @@ public class MainActivity extends Activity implements OnPreparedListener, OnTouc
 		super.onResume();
 	    vv.requestFocus();
 	}
-	public void playSounds() {
-		// get oop son
+	@Override
+	protected void onPause(){
+		super.onPause();
+		soundPool.release();
 	}
-
 	@Override
 	public void onPrepared(MediaPlayer mp) {
 		ii.setVisibility(View.GONE);
 		
 	}
-
-	@Override
-	public boolean onTouch(View v, MotionEvent event) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 
 }
