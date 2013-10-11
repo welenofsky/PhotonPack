@@ -25,8 +25,7 @@ public class MainActivity extends Activity implements OnPreparedListener{
 	ImageView ii;
 	Uri uri;
 	SoundPool soundPool;
-	int shooting_sound;
-	AssetFileDescriptor packshooting_descriptor;
+	int shooting_soundid;
 	boolean loaded = false;
 	int streamid;
 	
@@ -60,8 +59,8 @@ public class MainActivity extends Activity implements OnPreparedListener{
 	    
 	    try {
 	    	AssetManager assetManager = getAssets();
-	    	packshooting_descriptor = assetManager.openFd("spackshootmono.ogg");
-	    	shooting_sound = soundPool.load(packshooting_descriptor, 1);
+	    	AssetFileDescriptor packshooting_descriptor = assetManager.openFd("newfolder/spackshoot.ogg");
+	    	shooting_soundid = soundPool.load(packshooting_descriptor, 1);
 	    } catch (IOException e) {
 	    	Log.d("MEDIA ERROR", "Couldn't Open ogg");
 	    }    	
@@ -79,13 +78,14 @@ public class MainActivity extends Activity implements OnPreparedListener{
 				vv.start();
 			}
             if (loaded) {
-                streamid = soundPool.play(shooting_sound, 1, 1, 1, -1, 1);
-                Log.e("Test", "Played sound");  
+                streamid = soundPool.play(shooting_soundid, 1, 1, 1, -1, 1);
+                Log.d("PLAY", "Playing Sound...");  
             }
 			break;
 		case MotionEvent.ACTION_UP:
 			ii.setVisibility(View.VISIBLE);
 			soundPool.stop(streamid);
+			Log.d("ACTION_UP","Finger lifted");
 		    vv.pause();
 		    vv.seekTo(0);
 			break;
