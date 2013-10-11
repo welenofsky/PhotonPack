@@ -80,8 +80,7 @@ public class MainActivity extends Activity implements OnPreparedListener{
 			}
             if (loaded) {
                 streamid = soundPool.play(shooting_sound, 1, 1, 1, -1, 1);
-                Log.e("Test", "Played sound");
-                loaded = false;
+                Log.e("Test", "Played sound");  
             }
 			break;
 		case MotionEvent.ACTION_UP:
